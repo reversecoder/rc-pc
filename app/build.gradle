@@ -1,0 +1,137 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion appCompileSdkVersion
+    buildToolsVersion appBuildToolsVersion
+
+    signingConfigs {
+        releaseConfig {
+            try {
+                keyAlias 'keydata.keystore'
+                keyPassword KEY_PASSWORD
+                storeFile file('../misc/keydata.keystore.jks')
+                storePassword STORE_PASSWORD
+            } catch (Exception ex) {
+                throw new InvalidUserDataException(ex.getMessage())
+            }
+        }
+    }
+
+    defaultConfig {
+        applicationId "com.meembusoft.postcreator"
+
+        minSdkVersion appMinSdkVersion
+        targetSdkVersion appTargetSdkVersion
+        versionCode appVersionCode
+        versionName appVersionName
+
+        vectorDrawables.useSupportLibrary = true
+
+        // define your base Applications name here
+        resValue 'string', 'app_name', 'Post Creator'
+    }
+
+    buildTypes {
+        debug {
+            shrinkResources false
+            minifyEnabled false
+            debuggable true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            shrinkResources true
+            minifyEnabled true
+            debuggable false
+
+            //Default proguard call
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.releaseConfig
+        }
+    }
+
+    //Format output
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            println variant
+
+            //Rename the output apk file
+            def appName = variant.mergedFlavor.resValues.get('app_name').getValue()
+            def underScore = "_"
+            def version = variant.versionName
+            def buildType = variant.buildType.name
+            def releaseApkName = appName + underScore + version + underScore + convertToCamelCase(buildType) + ".apk"
+            outputFileName = releaseApkName
+
+            // set new resVale
+            variant.resValue 'string', 'app_name', appName
+        }
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
+}
+
+def static String convertToCamelCase(String str) {
+    if (str == null) {
+        return null
+    }
+
+    boolean space = true
+    StringBuilder builder = new StringBuilder(str)
+    final int len = builder.length()
+
+    for (int i = 0; i < len; ++i) {
+        char c = builder.charAt(i)
+        if (space) {
+            if (!Character.isWhitespace(c)) {
+                // Convert to title case and switch out of whitespace mode.
+                builder.setCharAt(i, Character.toTitleCase(c))
+                space = false
+            }
+        } else if (Character.isWhitespace(c)) {
+            space = true
+        } else {
+            builder.setCharAt(i, Character.toLowerCase(c))
+        }
+    }
+
+    return builder.toString()
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+
+    // Android X
+    implementation "androidx.appcompat:appcompat:$androidXAppCompatVersion"
+    implementation "com.google.android.material:material:$materialVersion"
+    implementation "androidx.constraintlayout:constraintlayout:$androidXConstraintLayoutVersion"
+
+    // Location library
+    implementation "com.google.android.gms:play-services-location:$googlePlayServiceLocationVersion"
+    implementation "com.google.code.gson:gson:$gsonVersion"
+
+    // Image loading
+    implementation "com.github.bumptech.glide:glide:$glideVersion"
+    annotationProcessor "com.github.bumptech.glide:compiler:$glideCompilerVersion"
+
+    // Water mark
+    implementation 'com.huangyz0918:androidwm-light:0.1.2'
+
+    // Library projects
+    implementation project(":library:meowbottomnavigation")
+    implementation project(":library:shadedimageview")
+    implementation project(":library:designpattern")
+    implementation project(":library:pdialog")
+    implementation project(":library:attributionpresenter")
+    implementation project(":library:discreteseekbar")
+    implementation project(":library:matisse")
+}

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#D81B60</color>
+
+    <!-- Circle ViewGroup-->
+    <color name="circle_default_border_color">#9C27B0</color>
+    <color name="circle_default_background_color">#4BBEC2</color>
+    <color name="default_highlight_background_color">#FF5722</color>
+    <color name="default_selector_color">#FFC107</color>
+
+    <color name="color_transparent">@android:color/transparent</color>
+    <color name="color_selected">#F0E9E9</color>
+</resources>

@@ -1,0 +1,8 @@
+include ':app',
+        ':library:meowbottomnavigation',
+        ':library:shadedimageview',
+        ':library:designpattern',
+        ':library:pdialog',
+        ':library:attributionpresenter',
+        ':library:discreteseekbar',
+        ':library:matisse'

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <declare-styleable name="ShapeManager" tools:ignore="ResourceName">
+        <attr name="sm_background_color" format="color" />
+        <attr name="sm_stroke_color" format="color" />
+        <attr name="sm_stroke_width" format="dimension" />
+        <attr name="sm_stroke_visibility" format="enum">
+            <enum name="gone" value="0" />
+            <enum name="visible" value="1" />
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="CircleViewGroup" tools:ignore="ResourceName">
+        <attr name="cvg_radius" format="dimension" />
+        <attr name="cvg_main_icon" format="reference"/>
+        <attr name="cvg_close_icon" format="reference"/>
+        <attr name="cvg_background_color" format="color"/>
+        <attr name="cvg_highlight_background_color" format="color"/>
+        <attr name="cvg_border_color" format="color" />
+        <attr name="cvg_border_width" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="CircleImageView">
+        <attr name="civ_border_width" format="dimension" />
+        <attr name="civ_border_color" format="color" />
+        <attr name="civ_border_overlay" format="boolean" />
+        <attr name="civ_circle_background_color" format="color" />
+    </declare-styleable>
+
+</resources>

@@ -1,0 +1,21 @@
+apply plugin: 'com.android.library'
+
+def libVersionCode = 2
+def libVersion = '1.0.1'
+
+android {
+    compileSdkVersion appCompileSdkVersion
+    buildToolsVersion appBuildToolsVersion
+
+    defaultConfig {
+        minSdkVersion appMinSdkVersion
+        targetSdkVersion appTargetSdkVersion
+        versionCode libVersionCode
+        versionName libVersion
+    }
+}
+
+dependencies {
+    // Android X
+    implementation "androidx.appcompat:appcompat:$androidXAppCompatVersion"
+}

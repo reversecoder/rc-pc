@@ -24,6 +24,7 @@ import androidx.appcompat.widget.AppCompatImageView;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.meembusoft.postcreator.BuildConfig;
 import com.meembusoft.postcreator.R;
 import com.meembusoft.postcreator.base.activity.BaseActivity;
 import com.meembusoft.postcreator.util.AppUtil;
@@ -125,6 +126,13 @@ public class PreviewActivity extends BaseActivity {
         rightMenu.setVisibility(View.VISIBLE);
         initBottomSheet();
         initAttributes();
+
+        try {
+            Log.d(TAG, "password>>super user: " + BuildConfig.ENCRYPTED_SUPER_USER_PASSWORD);
+            Log.d(TAG, "password>>user: " + BuildConfig.ENCRYPTED_USER_PASSWORD);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Override
@@ -292,7 +300,7 @@ public class PreviewActivity extends BaseActivity {
 
     public void saveBitmap(Bitmap bitmap) {
         Date now = new Date();
-        android.text.format.DateFormat.format("yyyy-MM-dd_hh:mm:ss", now);
+        android.text.format.DateFormat.format("dd-MM-yyyy_HH:mm_aaa", now);
 
         // Create folder if not exist
         String rootPath = Environment.getExternalStorageDirectory() + File.separator + "PostCreator";
@@ -313,7 +321,7 @@ public class PreviewActivity extends BaseActivity {
                 fos.flush();
                 fos.close();
 
-                Toast.makeText(getApplicationContext(), "SnapShot created successfuly. Check internal storage main folder for the file.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "File saved successfully", Toast.LENGTH_SHORT).show();
             } catch (FileNotFoundException e) {
                 Log.e("GREC", e.getMessage(), e);
                 Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
@@ -327,15 +335,15 @@ public class PreviewActivity extends BaseActivity {
     }
 
     private Bitmap setWaterMark(Bitmap bitmap) {
-        WatermarkText watermarkText = new WatermarkText("পিংনা, সরিষাবাড়ী, জামালপুর")
+        WatermarkText watermarkText = new WatermarkText(getString(R.string.txt_group_name))
                 .setPositionX(0.5)
                 .setPositionY(0.5)
                 .setTextColor(Color.WHITE)
                 .setTextFont(R.font.champagne)
                 .setTextShadow(0.1f, 5, 5, Color.BLUE)
-                .setTextAlpha(80)
+                .setTextAlpha(90)
                 .setRotation(50)
-                .setTextSize(16);
+                .setTextSize(18);
 
         return WatermarkBuilder
                 .create(this, bitmap)

@@ -5,4 +5,6 @@ include ':app',
         ':library:pdialog',
         ':library:attributionpresenter',
         ':library:discreteseekbar',
-        ':library:matisse'
+        ':library:matisse',
+        ':library:statusbarutil',
+        ':library:animationmanager'

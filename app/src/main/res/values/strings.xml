@@ -1,5 +1,5 @@
 <resources>
-    <!--<string name="app_name">PostCreator</string>-->
+    <string name="txt_group_name">পিংনা, সরিষাবাড়ী, জামালপুর</string>
 
     <!-- Toast -->
     <string name="toast_ignored_fast_click">Ignored fast click!</string>

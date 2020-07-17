@@ -55,23 +55,16 @@ public class AppUtil {
 
     private static String TAG = AppUtil.class.getSimpleName();
 
-//    public static ColorStateList getColorStateList(int rgbColor){
-//        int[][] states = new int[][] {
-//                new int[] { android.R.attr.state_enabled}, // enabled
-////                new int[] {-android.R.attr.state_enabled}, // disabled
-////                new int[] {-android.R.attr.state_checked}, // unchecked
-////                new int[] { android.R.attr.state_pressed}  // pressed
-//        };
-//
-//        int[] colors = new int[] {
-////                Color.BLACK,
-////                Color.RED,
-////                Color.GREEN,
-////                Color.BLUE
-//                rgbColor
-//        };
-//        return new ColorStateList(states, colors);
-//    }
+    public static String getAppVersion(Context context) {
+        String appVersion = "";
+        try {
+            PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+            appVersion = pInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return appVersion;
+    }
 
     public static <T extends View> void applyViewTint(T view, @ColorRes int colorResource) {
         if (view != null) {

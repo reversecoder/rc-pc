@@ -27,8 +27,12 @@ android {
 
         vectorDrawables.useSupportLibrary = true
 
-        // define your base Applications name here
+        // Define res values
         resValue 'string', 'app_name', 'Post Creator'
+
+        // Secured information
+        buildConfigField "String", "ENCRYPTED_SUPER_USER_PASSWORD", "\"ZGljb3N0YTAxMQ==\""//dicosta011
+        buildConfigField "String", "ENCRYPTED_USER_PASSWORD", "\"aWxvdmVteXNlbGY=\""//ilovemyself
     }
 
     buildTypes {
@@ -134,4 +138,6 @@ dependencies {
     implementation project(":library:attributionpresenter")
     implementation project(":library:discreteseekbar")
     implementation project(":library:matisse")
+    implementation project(":library:statusbarutil")
+    implementation project(":library:animationmanager")
 }

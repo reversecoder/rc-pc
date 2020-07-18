@@ -1,18 +1,12 @@
 package com.meembusoft.postcreator.activity;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -38,8 +32,6 @@ import com.meembusoft.postcreator.util.AppUtil;
 import com.meembusoft.postcreator.util.BitmapManager;
 import com.meembusoft.postcreator.util.ColorPickerManager;
 import com.meembusoft.postcreator.util.KeyboardManager;
-import com.meembusoft.postcreator.view.GlazyImageView;
-import com.meembusoft.postcreator.view.Utils;
 import com.watermark.androidwm_light.WatermarkBuilder;
 import com.watermark.androidwm_light.bean.WatermarkText;
 import com.zhihu.matisse.Matisse;
@@ -165,7 +157,7 @@ public class PreviewActivity extends BaseActivity {
 //            new Handler().postDelayed(new Runnable() {
 //                @Override
 //                public void run() {
-        //                }
+            //                }
 //            }, 1000);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -320,13 +312,21 @@ public class PreviewActivity extends BaseActivity {
 
     private void takeScreenShot() {
         try {
-            Bitmap bitmapPostView = createBitmap(R.drawable.courteny_cox);
-            Bitmap logo = createBitmap(R.drawable.logo_text);
-            Bitmap finalBitmap = BitmapManager.drawTextToBitmap(PreviewActivity.this, bitmapPostView,
-                    "MeembuSoft", BitmapManager.STAMP_POSITION.RIGHT_BOTTOM);
+            Bitmap originalBitmap = createBitmap(R.drawable.courteny_cox);
 
-            Bitmap watermarkedBitmap = setWaterMark(finalBitmap);
-            saveBitmap(watermarkedBitmap);
+            // Add watermark
+            Bitmap watermarkedBitmap = setWaterMark(originalBitmap);
+            // Add shade
+            int shadeColor = ColorPickerManager.getAlphaColor(ContextCompat.getColor(getActivity(), R.color.colorAlphaShadeBlack), 150);
+            Bitmap shadedBitmap = BitmapManager.addShade(watermarkedBitmap, shadeColor);
+            // Add stamp
+            Bitmap stampedBitmap = BitmapManager.addStamp(PreviewActivity.this, shadedBitmap, "MeembuSoft", BitmapManager.STAMP_POSITION.RIGHT_BOTTOM);
+
+//            Bitmap frame = BitmapManager.addFrame(watermarkedBitmap);
+//            Bitmap shadow = BitmapManager.addShadow(watermarkedBitmap, watermarkedBitmap.getHeight(), watermarkedBitmap.getWidth(),  Color.BLACK, 3, 1, 3 );
+//            Bitmap linearShade = BitmapManager.addLinearGradient( watermarkedBitmap, watermarkedBitmap.getHeight());
+
+            saveBitmap(stampedBitmap);
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -337,6 +337,12 @@ public class PreviewActivity extends BaseActivity {
         Canvas c = new Canvas(b);
         v.draw(c);
         return b;
+    }
+
+    public Bitmap createBitMap(String filePath) {
+        File file = new File(filePath);
+        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+        return bitmap;
     }
 
     private Bitmap createBitmap(int drawableRes) {

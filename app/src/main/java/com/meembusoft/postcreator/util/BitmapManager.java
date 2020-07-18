@@ -202,7 +202,7 @@ public class BitmapManager {
         // text color - #3D3D3D
         paint.setColor(Color.rgb(255, 255, 255));
         // text size in pixels
-        paint.setTextSize((35 * scale));
+        paint.setTextSize((40 * scale));
         // text shadow
         paint.setShadowLayer(1f, 0f, 1f, Color.WHITE);
 

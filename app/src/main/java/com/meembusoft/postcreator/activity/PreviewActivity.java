@@ -4,11 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -32,19 +28,12 @@ import com.meembusoft.postcreator.util.AppUtil;
 import com.meembusoft.postcreator.util.BitmapManager;
 import com.meembusoft.postcreator.util.ColorPickerManager;
 import com.meembusoft.postcreator.util.KeyboardManager;
-import com.watermark.androidwm_light.WatermarkBuilder;
-import com.watermark.androidwm_light.bean.WatermarkText;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.engine.impl.GlideEngine;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 public class PreviewActivity extends BaseActivity {
@@ -63,15 +52,18 @@ public class PreviewActivity extends BaseActivity {
     private ImageView ivBackground;
     private ImageView viewShadow;
     private TextView tvText;
+    private String mText = "";
 
     // Attribute
     private ImageView ivAttributeBackground;
     private DiscreteSeekBar seekBarAttributeShadow;
     private EditText edtAttributeText;
+    private int mAlphaColor;
 
     // Image picker
     private int INTENT_REQUEST_CODE_IMAGE_PICKER = 420;
     private String mImagePath = "";
+    private Bitmap mOriginalBitmap = null;
 
     @Override
     public String[] initActivityPermissions() {
@@ -153,12 +145,6 @@ public class PreviewActivity extends BaseActivity {
         try {
             Log.d(TAG, "password>>super user: " + BuildConfig.ENCRYPTED_SUPER_USER_PASSWORD);
             Log.d(TAG, "password>>user: " + BuildConfig.ENCRYPTED_USER_PASSWORD);
-
-//            new Handler().postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-            //                }
-//            }, 1000);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -208,14 +194,20 @@ public class PreviewActivity extends BaseActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                tvText.setText(s.toString());
+                mText = s.toString();
+                tvText.setText(mText);
             }
         });
 
         seekBarAttributeShadow.setOnProgressChangeListener(new DiscreteSeekBar.OnProgressChangeListener() {
             @Override
             public void onProgressChanged(DiscreteSeekBar seekBar, int value, boolean fromUser) {
-                setViewShadow(viewShadow, value);
+                if (mOriginalBitmap != null) {
+                    setViewShadow(viewShadow, value);
+                    mAlphaColor = ColorPickerManager.getAlphaColor(ContextCompat.getColor(getActivity(), R.color.colorAlphaShadeBlack), value);
+                } else {
+                    Log.d(TAG, "onProgressChanged>> mOriginalBitmap null");
+                }
             }
 
             @Override
@@ -241,6 +233,8 @@ public class PreviewActivity extends BaseActivity {
 
                 AppUtil.loadImage(getActivity(), ivAttributeBackground, mImagePath, false, true, false);
                 AppUtil.loadImage(getActivity(), ivBackground, mImagePath, false, false, false);
+
+                mOriginalBitmap = BitmapManager.createBitmap(getActivity(), mImagePath);
             }
         }
     }
@@ -256,7 +250,9 @@ public class PreviewActivity extends BaseActivity {
 
     @Override
     public void initActivityDestroyTasks() {
-
+        if (mOriginalBitmap != null) {
+            mOriginalBitmap.recycle();
+        }
     }
 
     @Override
@@ -267,6 +263,7 @@ public class PreviewActivity extends BaseActivity {
     private void initAttributes() {
         seekBarAttributeShadow.setProgress(150);
         setViewShadow(viewShadow, 150);
+        mAlphaColor = ColorPickerManager.getAlphaColor(ContextCompat.getColor(getActivity(), R.color.colorAlphaShadeBlack), 150);
     }
 
     private void initBottomSheet() {
@@ -312,97 +309,28 @@ public class PreviewActivity extends BaseActivity {
 
     private void takeScreenShot() {
         try {
-            Bitmap originalBitmap = createBitmap(R.drawable.courteny_cox);
-
-            // Add watermark
-            Bitmap watermarkedBitmap = setWaterMark(originalBitmap);
-            // Add shade
-            int shadeColor = ColorPickerManager.getAlphaColor(ContextCompat.getColor(getActivity(), R.color.colorAlphaShadeBlack), 150);
-            Bitmap shadedBitmap = BitmapManager.addShade(watermarkedBitmap, shadeColor);
-            // Add stamp
-            Bitmap stampedBitmap = BitmapManager.addStamp(PreviewActivity.this, shadedBitmap, "MeembuSoft", BitmapManager.STAMP_POSITION.RIGHT_BOTTOM);
+            if (mOriginalBitmap != null) {
+                // Add watermark
+                Bitmap watermarkedBitmap = BitmapManager.setWaterMark(getActivity(), mOriginalBitmap, getString(R.string.txt_group_name));
+                // Add shade
+                Bitmap shadedBitmap = BitmapManager.addShade(watermarkedBitmap, mAlphaColor);
+                // Add stamp
+                Bitmap stampedBitmap = BitmapManager.addStamp(PreviewActivity.this, shadedBitmap, "MeembuSoft", BitmapManager.STAMP_POSITION.RIGHT_BOTTOM);
+                // Add text
+                Bitmap textedBitmap = BitmapManager.addText(PreviewActivity.this, stampedBitmap, mText, BitmapManager.TEXT_POSITION.CENTER);
 
 //            Bitmap frame = BitmapManager.addFrame(watermarkedBitmap);
 //            Bitmap shadow = BitmapManager.addShadow(watermarkedBitmap, watermarkedBitmap.getHeight(), watermarkedBitmap.getWidth(),  Color.BLACK, 3, 1, 3 );
 //            Bitmap linearShade = BitmapManager.addLinearGradient( watermarkedBitmap, watermarkedBitmap.getHeight());
 
-            saveBitmap(stampedBitmap);
+                BitmapManager.saveBitmap(getActivity(), textedBitmap);
+            } else {
+                Log.d(TAG, "takeScreenShot>> mOriginalBitmap null");
+                Toast.makeText(getActivity(), "Please set background image", Toast.LENGTH_SHORT).show();
+            }
         } catch (Exception exception) {
             exception.printStackTrace();
         }
-    }
-
-    private Bitmap createBitmap(View v) {
-        Bitmap b = Bitmap.createBitmap(v.getWidth(), v.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas c = new Canvas(b);
-        v.draw(c);
-        return b;
-    }
-
-    public Bitmap createBitMap(String filePath) {
-        File file = new File(filePath);
-        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
-        return bitmap;
-    }
-
-    private Bitmap createBitmap(int drawableRes) {
-        Bitmap b = BitmapFactory.decodeResource(getResources(), drawableRes);
-        return b;
-    }
-
-    public void saveBitmap(Bitmap bitmap) {
-        Date now = new Date();
-        android.text.format.DateFormat.format("dd-MM-yyyy_HH:mm_aaa", now);
-
-        // Create folder if not exist
-        String rootPath = Environment.getExternalStorageDirectory() + File.separator + "PostCreator";
-        File folder = new File(rootPath);
-        if (!folder.exists()) {
-            folder.mkdir();
-        }
-
-        // image naming and path  to include sd card  appending name you choose for file
-        String filePath = rootPath + File.separator + "PostCreator " + now + ".jpg";
-
-        File imagePath = new File(filePath);
-        FileOutputStream fos;
-        if (bitmap != null) {
-            try {
-                fos = new FileOutputStream(imagePath);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                fos.flush();
-                fos.close();
-
-                Toast.makeText(getApplicationContext(), "File saved successfully", Toast.LENGTH_SHORT).show();
-            } catch (FileNotFoundException e) {
-                Log.e("GREC", e.getMessage(), e);
-                Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
-
-            } catch (IOException e) {
-                Log.e("GREC", e.getMessage(), e);
-                Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
-
-            }
-        }
-    }
-
-    private Bitmap setWaterMark(Bitmap bitmap) {
-        WatermarkText watermarkText = new WatermarkText(getString(R.string.txt_group_name))
-                .setPositionX(0.5)
-                .setPositionY(0.5)
-                .setTextColor(Color.WHITE)
-                .setTextFont(R.font.champagne)
-                .setTextShadow(0.1f, 5, 5, Color.BLUE)
-                .setTextAlpha(90)
-                .setRotation(50)
-                .setTextSize(18);
-
-        return WatermarkBuilder
-                .create(this, bitmap)
-                .loadWatermarkText(watermarkText)
-                .setTileMode(true) // select different drawing mode.
-                .getWatermark()
-                .getOutputImage();
     }
 
     private void setViewShadow(ImageView imageView, int colorValue) {

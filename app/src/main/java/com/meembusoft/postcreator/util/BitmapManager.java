@@ -1,16 +1,12 @@
 package com.meembusoft.postcreator.util;
 
-import android.animation.ArgbEvaluator;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.LightingColorFilter;
 import android.graphics.LinearGradient;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -21,10 +17,21 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Typeface;
-
-import androidx.core.content.ContextCompat;
+import android.os.Environment;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import com.meembusoft.postcreator.R;
+import com.watermark.androidwm_light.WatermarkBuilder;
+import com.watermark.androidwm_light.bean.WatermarkText;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Date;
 
 /**
  * @author Md. Rashadul Alam
@@ -35,6 +42,84 @@ public class BitmapManager {
     private static String TAG = BitmapManager.class.getSimpleName();
 
     public enum STAMP_POSITION {LEFT_TOP, LEFT_CENTER, LEFT_BOTTOM, TOP_CENTER, RIGHT_TOP, RIGHT_CENTER, RIGHT_BOTTOM, BOTTOM_CENTER, CENTER}
+
+    public enum TEXT_POSITION {CENTER, TOP, BOTTOM}
+
+    public static Bitmap cloneBitmap(Bitmap bitmap) {
+        return bitmap.copy(bitmap.getConfig(), bitmap.isMutable());
+    }
+
+    public static <T> Bitmap createBitmap(Context context, T imageSource) {
+        Bitmap bitmap = null;
+        if (imageSource instanceof String) {
+            if (!TextUtils.isEmpty((String) imageSource)) {
+                File file = new File(imageSource.toString());
+                bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+            }
+        } else if (imageSource instanceof Integer) {
+            bitmap = BitmapFactory.decodeResource(context.getResources(), (Integer) imageSource);
+        } else if (imageSource instanceof View) {
+            View view = (View) imageSource;
+            bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+            Canvas c = new Canvas(bitmap);
+            view.draw(c);
+        }
+        return bitmap;
+    }
+
+    public static Bitmap setWaterMark(Context context, Bitmap bitmap, String text) {
+        WatermarkText watermarkText = new WatermarkText(text)
+                .setPositionX(0.5)
+                .setPositionY(0.5)
+                .setTextColor(Color.WHITE)
+                .setTextFont(R.font.champagne)
+                .setTextShadow(0.1f, 5, 5, Color.BLUE)
+                .setTextAlpha(90)
+                .setRotation(50)
+                .setTextSize(20);
+
+        return WatermarkBuilder
+                .create(context, bitmap)
+                .loadWatermarkText(watermarkText)
+                .setTileMode(true) // select different drawing mode.
+                .getWatermark()
+                .getOutputImage();
+    }
+
+    public static void saveBitmap(Context context, Bitmap bitmap) {
+        Date now = new Date();
+        android.text.format.DateFormat.format("dd-MM-yyyy_HH:mm_aaa", now);
+
+        // Create folder if not exist
+        String rootPath = Environment.getExternalStorageDirectory() + File.separator + "PostCreator";
+        File folder = new File(rootPath);
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+
+        // image naming and path  to include sd card  appending name you choose for file
+        String filePath = rootPath + File.separator + "PostCreator " + now + ".jpg";
+
+        File imagePath = new File(filePath);
+        FileOutputStream fos;
+        if (bitmap != null) {
+            try {
+                fos = new FileOutputStream(imagePath);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                fos.flush();
+                fos.close();
+
+                Toast.makeText(context, "File saved successfully", Toast.LENGTH_SHORT).show();
+            } catch (FileNotFoundException e) {
+                Log.e("GREC", e.getMessage(), e);
+                Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
+
+            } catch (IOException e) {
+                Log.e("GREC", e.getMessage(), e);
+                Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
     public static Bitmap addStamp(Context gContext, Bitmap bitmap, String gText, STAMP_POSITION stampPosition) {
         Resources resources = gContext.getResources();
@@ -95,10 +180,41 @@ public class BitmapManager {
         return bitmap;
     }
 
-    public static Bitmap addFrame(Bitmap originalBitmap){
+    public static Bitmap addText(Context gContext, Bitmap bitmap, String gText, TEXT_POSITION textPosition) {
+        Resources resources = gContext.getResources();
+        float scale = resources.getDisplayMetrics().density;
+        android.graphics.Bitmap.Config bitmapConfig = bitmap.getConfig();
+        if (bitmapConfig == null) {
+            bitmapConfig = android.graphics.Bitmap.Config.ARGB_8888;
+        }
+        bitmap = bitmap.copy(bitmapConfig, true);
+        Canvas canvas = new Canvas(bitmap);
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setColor(resources.getColor(R.color.colorWhite));
+        paint.setTypeface(Typeface.createFromAsset(gContext.getAssets(), "fonts/mathilde.otf"));
+        paint.setTextSize((int) (40 * scale));
+        paint.setShadowLayer(2f, 0f, 2f, resources.getColor(R.color.colorBlack));
+        Rect bounds = new Rect();
+        paint.getTextBounds(gText, 0, gText.length(), bounds);
+        int x = 0, y = 0;
+        switch (textPosition) {
+            case CENTER:
+                x = (bitmap.getWidth() - bounds.width()) / 2;
+                y = (bitmap.getHeight() + bounds.height()) / 2;
+                break;
+            case TOP:
+                break;
+            case BOTTOM:
+                break;
+        }
+        canvas.drawText(gText, x, y, paint);
+        return bitmap;
+    }
+
+    public static Bitmap addFrame(Bitmap originalBitmap) {
         Canvas canvas = new Canvas(originalBitmap);
         Paint framePaint = new Paint();
-        for(int i = 1; i < 5; i++){
+        for (int i = 1; i < 5; i++) {
             setFramePaint(framePaint, i, originalBitmap.getWidth(), originalBitmap.getHeight());
             canvas.drawPaint(framePaint);
         }
@@ -188,7 +304,7 @@ public class BitmapManager {
 
         final Bitmap ret = Bitmap.createBitmap(dstWidth, dstHeight, Bitmap.Config.ARGB_8888);
         final Canvas retCanvas = new Canvas(ret);
-        retCanvas.drawBitmap(mask, 0,  0, paint);
+        retCanvas.drawBitmap(mask, 0, 0, paint);
         retCanvas.drawBitmap(bm, scaleToFit, null);
         mask.recycle();
         return ret;
@@ -202,7 +318,7 @@ public class BitmapManager {
         canvas.drawBitmap(src, 0, 0, null);
 
         Paint paint = new Paint();
-        LinearGradient shader = new LinearGradient(0,  h - gradientHeight, 0, h, 0xFFFFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP);
+        LinearGradient shader = new LinearGradient(0, h - gradientHeight, 0, h, 0xFFFFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP);
         paint.setShader(shader);
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
         canvas.drawRect(0, h - gradientHeight, w, h, paint);

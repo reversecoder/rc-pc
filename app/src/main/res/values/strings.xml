@@ -14,4 +14,5 @@
     <string name="txt_text">Text</string>
     <string name="txt_input_text">Input Text</string>
     <string name="txt_watermark">Water Mark</string>
+    <string name="txt_stamp">Stamp</string>
 </resources>

@@ -8,15 +8,15 @@
 
     <ImageView
         android:id="@+id/iv_background"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
     <ImageView
         android:id="@+id/view_shadow"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/shape_rectangle_bg_transparent"
-        android:clickable="true"/>
+        android:clickable="true" />
 
     <TextView
         android:id="@+id/tv_text"
@@ -28,21 +28,5 @@
         android:text=""
         android:textColor="@color/colorWhite"
         android:textSize="30sp" />
-
-    <RelativeLayout
-        android:id="@+id/rl_info"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
-
-        <ImageView
-            android:id="@+id/iv_logo"
-            android:layout_width="150dp"
-            android:layout_height="50dp"
-            android:layout_centerInParent="true"
-            android:background="@drawable/logo_text"
-            android:backgroundTint="@color/colorWhite" />
-
-    </RelativeLayout>
 
 </RelativeLayout>

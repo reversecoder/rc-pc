@@ -8,16 +8,15 @@
 
     <ImageView
         android:id="@+id/iv_background"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:scaleType="fitCenter" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <ImageView
         android:id="@+id/view_shadow"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/shape_rectangle_bg_transparent"
-        android:clickable="true" />
+        android:clickable="true"/>
 
     <TextView
         android:id="@+id/tv_text"
@@ -32,27 +31,15 @@
 
     <RelativeLayout
         android:id="@+id/rl_info"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
-            android:layout_toLeftOf="@+id/iv_logo"
-            android:text="fb/meembusoft"
-            android:textColor="@color/colorWhite"
-            android:textSize="16sp" />
 
         <ImageView
             android:id="@+id/iv_logo"
             android:layout_width="150dp"
             android:layout_height="50dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
+            android:layout_centerInParent="true"
             android:background="@drawable/logo_text"
             android:backgroundTint="@color/colorWhite" />
 

@@ -1,11 +1,18 @@
 package com.meembusoft.postcreator.activity;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -28,8 +35,11 @@ import com.meembusoft.postcreator.BuildConfig;
 import com.meembusoft.postcreator.R;
 import com.meembusoft.postcreator.base.activity.BaseActivity;
 import com.meembusoft.postcreator.util.AppUtil;
+import com.meembusoft.postcreator.util.BitmapManager;
 import com.meembusoft.postcreator.util.ColorPickerManager;
 import com.meembusoft.postcreator.util.KeyboardManager;
+import com.meembusoft.postcreator.view.GlazyImageView;
+import com.meembusoft.postcreator.view.Utils;
 import com.watermark.androidwm_light.WatermarkBuilder;
 import com.watermark.androidwm_light.bean.WatermarkText;
 import com.zhihu.matisse.Matisse;
@@ -117,6 +127,27 @@ public class PreviewActivity extends BaseActivity {
         ivAttributeBackground = (ImageView) findViewById(R.id.iv_attribute_background);
         seekBarAttributeShadow = (DiscreteSeekBar) findViewById(R.id.seekbar_attribute_shadow);
         edtAttributeText = (EditText) findViewById(R.id.edt_attribute_text);
+
+//        ivBackground.setImageRes(R.drawable.logo_text);
+//        ivBackground.setTitleText("Rashed");
+//        ivBackground.setTitleTextColor(Color.BLACK);
+//        ivBackground.setTitleTextSize(Utils.dpToPx(PreviewActivity.this, 22));
+//        ivBackground.setSubTitleText("Software Engineer");
+//        ivBackground.setSubTitleTextColor(R.color.colorPrimary);
+//        ivBackground.setSubTitleTextSize(Utils.dpToPx(PreviewActivity.this, 16));
+//////        imgView.setTextMargin(Utils.dpToPx(TestPagerActivity.this, 5));
+//////        imgView.setLineSpacing(Utils.dpToPx(TestPagerActivity.this, 5));
+//        ivBackground.setAutoTint(true);
+//        ivBackground.setTintColor(Color.BLUE);
+//        ivBackground.setTintAlpha(125);
+//        ivBackground.setCutType(GlazyImageView.ImageCutType.WAVE);
+//        ivBackground.setCutCount(3);
+//        ivBackground.setCutHeight(Utils.dpToPx(PreviewActivity.this,40));
+//        ivBackground.post(new Runnable() {
+//            public void run() {
+//                ivBackground.update(0.99f);
+//            }
+//        });
     }
 
     @Override
@@ -130,6 +161,12 @@ public class PreviewActivity extends BaseActivity {
         try {
             Log.d(TAG, "password>>super user: " + BuildConfig.ENCRYPTED_SUPER_USER_PASSWORD);
             Log.d(TAG, "password>>user: " + BuildConfig.ENCRYPTED_USER_PASSWORD);
+
+//            new Handler().postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+        //                }
+//            }, 1000);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -283,8 +320,12 @@ public class PreviewActivity extends BaseActivity {
 
     private void takeScreenShot() {
         try {
-            Bitmap bitmapPostView = createBitmap(findViewById(R.id.rl_post_view));
-            Bitmap watermarkedBitmap = setWaterMark(bitmapPostView);
+            Bitmap bitmapPostView = createBitmap(R.drawable.courteny_cox);
+            Bitmap logo = createBitmap(R.drawable.logo_text);
+            Bitmap finalBitmap = BitmapManager.drawTextToBitmap(PreviewActivity.this, bitmapPostView,
+                    "MeembuSoft", BitmapManager.STAMP_POSITION.RIGHT_BOTTOM);
+
+            Bitmap watermarkedBitmap = setWaterMark(finalBitmap);
             saveBitmap(watermarkedBitmap);
         } catch (Exception exception) {
             exception.printStackTrace();
@@ -295,6 +336,11 @@ public class PreviewActivity extends BaseActivity {
         Bitmap b = Bitmap.createBitmap(v.getWidth(), v.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(b);
         v.draw(c);
+        return b;
+    }
+
+    private Bitmap createBitmap(int drawableRes) {
+        Bitmap b = BitmapFactory.decodeResource(getResources(), drawableRes);
         return b;
     }
 

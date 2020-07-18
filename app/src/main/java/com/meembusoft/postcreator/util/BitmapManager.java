@@ -18,6 +18,9 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.os.Environment;
+import android.text.Layout;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -133,7 +136,7 @@ public class BitmapManager {
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(resources.getColor(R.color.colorWhite));
         paint.setTypeface(Typeface.createFromAsset(gContext.getAssets(), "fonts/mathilde.otf"));
-        paint.setTextSize((int) (24 * scale));
+        paint.setTextSize((30 * scale));
         paint.setShadowLayer(2f, 0f, 2f, resources.getColor(R.color.colorBlack));
         Rect bounds = new Rect();
         paint.getTextBounds(gText, 0, gText.length(), bounds);
@@ -145,15 +148,15 @@ public class BitmapManager {
                 break;
             case RIGHT_BOTTOM:
                 x = (bitmap.getWidth() - bounds.width() - 10);
-                y = (bitmap.getHeight() - (bounds.height() / 2) - 5);
+                y = (bitmap.getHeight() - (bounds.height() / 2) - 10);
                 break;
             case LEFT_BOTTOM:
                 x = 10;
-                y = (bitmap.getHeight() - (bounds.height() / 2) - 5);
+                y = (bitmap.getHeight() - (bounds.height() / 2) - 10);
                 break;
             case BOTTOM_CENTER:
                 x = (bitmap.getWidth() - bounds.width()) / 2;
-                y = (bitmap.getHeight() - (bounds.height() / 2) - 5);
+                y = (bitmap.getHeight() - (bounds.height() / 2) - 10);
                 break;
             case TOP_CENTER:
                 x = (bitmap.getWidth() - bounds.width()) / 2;
@@ -180,34 +183,57 @@ public class BitmapManager {
         return bitmap;
     }
 
-    public static Bitmap addText(Context gContext, Bitmap bitmap, String gText, TEXT_POSITION textPosition) {
-        Resources resources = gContext.getResources();
-        float scale = resources.getDisplayMetrics().density;
+    public static Bitmap addText(Context context, Bitmap bitmap, String text, TEXT_POSITION textPosition) {
+        // prepare canvas
+        float scale = context.getResources().getDisplayMetrics().density;
         android.graphics.Bitmap.Config bitmapConfig = bitmap.getConfig();
+        // set default bitmap config if none
         if (bitmapConfig == null) {
             bitmapConfig = android.graphics.Bitmap.Config.ARGB_8888;
         }
+        // resource bitmaps are imutable,
+        // so we need to convert it to mutable one
         bitmap = bitmap.copy(bitmapConfig, true);
+
         Canvas canvas = new Canvas(bitmap);
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setColor(resources.getColor(R.color.colorWhite));
-        paint.setTypeface(Typeface.createFromAsset(gContext.getAssets(), "fonts/mathilde.otf"));
-        paint.setTextSize((int) (40 * scale));
-        paint.setShadowLayer(2f, 0f, 2f, resources.getColor(R.color.colorBlack));
-        Rect bounds = new Rect();
-        paint.getTextBounds(gText, 0, gText.length(), bounds);
+
+        // new antialiased Paint
+        TextPaint paint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+        // text color - #3D3D3D
+        paint.setColor(Color.rgb(255, 255, 255));
+        // text size in pixels
+        paint.setTextSize((35 * scale));
+        // text shadow
+        paint.setShadowLayer(1f, 0f, 1f, Color.WHITE);
+
+        // set text width to canvas width minus 16dp padding
+        int textWidth = canvas.getWidth() - (int) (15 * scale);
+
+        // init StaticLayout for text
+        StaticLayout textLayout = new StaticLayout(text, paint, textWidth, Layout.Alignment.ALIGN_CENTER, 1.5f, 1.0f, false);
+
+        // get height of multiline text
+        int textHeight = textLayout.getHeight();
+
+        // get position of text's top left corner
         int x = 0, y = 0;
         switch (textPosition) {
             case CENTER:
-                x = (bitmap.getWidth() - bounds.width()) / 2;
-                y = (bitmap.getHeight() + bounds.height()) / 2;
+                x = (bitmap.getWidth() - textWidth) / 2;
+                y = (bitmap.getHeight() - textHeight) / 2;
                 break;
             case TOP:
                 break;
             case BOTTOM:
                 break;
         }
-        canvas.drawText(gText, x, y, paint);
+
+        // draw text to the Canvas center
+        canvas.save();
+        canvas.translate(x, y);
+        textLayout.draw(canvas);
+        canvas.restore();
+
         return bitmap;
     }
 

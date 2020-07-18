@@ -261,9 +261,9 @@ public class PreviewActivity extends BaseActivity {
     }
 
     private void initAttributes() {
-        seekBarAttributeShadow.setProgress(150);
-        setViewShadow(viewShadow, 150);
-        mAlphaColor = ColorPickerManager.getAlphaColor(ContextCompat.getColor(getActivity(), R.color.colorAlphaShadeBlack), 150);
+        seekBarAttributeShadow.setProgress(100);
+        setViewShadow(viewShadow, 100);
+        mAlphaColor = ColorPickerManager.getAlphaColor(ContextCompat.getColor(getActivity(), R.color.colorAlphaShadeBlack), 100);
     }
 
     private void initBottomSheet() {

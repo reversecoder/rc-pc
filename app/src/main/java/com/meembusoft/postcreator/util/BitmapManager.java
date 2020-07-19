@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -91,7 +92,8 @@ public class BitmapManager {
 
     public static void saveBitmap(Context context, Bitmap bitmap) {
         Date now = new Date();
-        android.text.format.DateFormat.format("dd-MM-yyyy_HH:mm_aaa", now);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy, EEEE, hh:mm:ss a");
+        String dateTime = simpleDateFormat.format(now);
 
         // Create folder if not exist
         String rootPath = Environment.getExternalStorageDirectory() + File.separator + "PostCreator";
@@ -101,7 +103,7 @@ public class BitmapManager {
         }
 
         // image naming and path  to include sd card  appending name you choose for file
-        String filePath = rootPath + File.separator + "PostCreator " + now + ".jpg";
+        String filePath = rootPath + File.separator + "PostCreator_" + dateTime + ".jpg";
 
         File imagePath = new File(filePath);
         FileOutputStream fos;

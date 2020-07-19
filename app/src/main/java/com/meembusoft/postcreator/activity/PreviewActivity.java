@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
@@ -34,7 +35,10 @@ import com.zhihu.matisse.engine.impl.GlideEngine;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
+import java.io.File;
 import java.util.List;
+
+import me.echodev.resizer.Resizer;
 
 public class PreviewActivity extends BaseActivity {
 
@@ -234,7 +238,23 @@ public class PreviewActivity extends BaseActivity {
                 AppUtil.loadImage(getActivity(), ivAttributeBackground, mImagePath, false, true, false);
                 AppUtil.loadImage(getActivity(), ivBackground, mImagePath, false, false, false);
 
-                mOriginalBitmap = BitmapManager.createBitmap(getActivity(), mImagePath);
+                if(!TextUtils.isEmpty(mImagePath)){
+                    try {
+                        File imageFile = new File(mImagePath);
+                        Log.d(TAG, "MatisseImage>> image length is greater than 1 mega bit.");
+                        if(imageFile.length()>(1024 * 1024)){
+                            mOriginalBitmap = new Resizer(this)
+                                    .setQuality(100)
+                                    .setSourceImage(imageFile)
+                                    .getResizedBitmap();
+                        } else {
+                            Log.d(TAG, "MatisseImage>> image length is less than 1 mega bit.");
+                            mOriginalBitmap = BitmapManager.createBitmap(getActivity(), mImagePath);
+                        }
+                    }catch (Exception ex){
+                        ex.printStackTrace();
+                    }
+                }
             }
         }
     }
@@ -261,9 +281,9 @@ public class PreviewActivity extends BaseActivity {
     }
 
     private void initAttributes() {
-        seekBarAttributeShadow.setProgress(100);
-        setViewShadow(viewShadow, 100);
-        mAlphaColor = ColorPickerManager.getAlphaColor(ContextCompat.getColor(getActivity(), R.color.colorAlphaShadeBlack), 100);
+        seekBarAttributeShadow.setProgress(50);
+        setViewShadow(viewShadow, 50);
+        mAlphaColor = ColorPickerManager.getAlphaColor(ContextCompat.getColor(getActivity(), R.color.colorAlphaShadeBlack), 50);
     }
 
     private void initBottomSheet() {

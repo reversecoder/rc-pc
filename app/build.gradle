@@ -133,6 +133,8 @@ dependencies {
     // Glazy imageview
     implementation 'androidx.palette:palette:1.0.0'
 
+    // Resizer
+    implementation 'com.github.hkk595:Resizer:v1.5'
 
     // Library projects
     implementation project(":library:meowbottomnavigation")
